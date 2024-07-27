@@ -3,7 +3,7 @@
 
 AC_INIT([Poly/ML],[5.9.1],[polyml AT polyml DOT org],[polyml])
 AM_INIT_AUTOMAKE
-AC_PREREQ([2.71])
+AC_PREREQ([2.69])
 # libtoolize recommends this line.
 AC_CONFIG_MACRO_DIR([m4])
 
