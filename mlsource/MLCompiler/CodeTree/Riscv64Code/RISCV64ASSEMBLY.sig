@@ -21,9 +21,10 @@ sig
     type instr
     type machineWord = Address.machineWord
     type xReg
-    type fReg
+    type vReg
 
-    val X0:  xReg   and X1:  xReg   and X2:  xReg   and X3: xReg
+ (* The missing X0 is XZero *)
+    val                 X1:  xReg   and X2:  xReg   and X3: xReg
     and X4:  xReg   and X5:  xReg   and X6:  xReg   and X7: xReg
     and X8:  xReg   and X9:  xReg   and X10: xReg   and X11: xReg
     and X12: xReg   and X13: xReg   and X14: xReg   and X15: xReg
@@ -32,10 +33,15 @@ sig
     and X24: xReg   and X25: xReg   and X26: xReg   and X27: xReg
     and X28: xReg   and X29: xReg   and X30: xReg   and X31: xReg
 
- (* NOTE: There are totally 32 floating-point registers in RISC-V 64, we
-    only use 8 of them? *)
-    val F0:  fReg   and F1:  fReg   and F2:  fReg   and F3: fReg
-    and F4:  fReg   and F5:  fReg   and F6:  fReg   and F7: fReg
+    val X_MLHeapLimit:    xReg (* ML Heap limit pointer *)
+    and X_MLAssemblyInt:  xReg (* ML assembly interface pointer. *)
+    and X_MLHeapAllocPtr: xReg (* ML Heap allocation pointer. *)
+    and X_MLStackPtr:     xReg (* ML Stack pointer. *)
+    and X_LinkReg:        xReg (* Link reg - return address *)
+
+ (* V8 - V31 is currently not used in ML *)
+    val V0:  vReg   and V1:  vReg   and V2:  vReg   and V3: vReg
+    and V4:  vReg   and V5:  vReg   and V6:  vReg   and V7: vReg
 
  (* Integer Register-Immediate Instructions *)
     val addImmediate:         {rd: xReg, rs1: xReg, imm: word} -> instr
@@ -68,6 +74,6 @@ sig
         type closureRef = closureRef
         type instr = instr
         type xReg = xReg
-        type fReg = fReg
+        type vReg = vReg
     end
 end;

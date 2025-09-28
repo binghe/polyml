@@ -34,7 +34,7 @@ struct
 
     exception InternalError = Misc.InternalError
 
-    infix 5 << <<+ <<- >> >>+ >>- ~>> ~>>+ ~>>- (* Shift operators *)
+    infix 5 << <<+ <<- >> >>+ >>- ~>> ~>>+ ~>>- (* shift operators *)
     infix 3 andb orb xorb andbL orbL xorbL andb8 orb8 xorb8
 
     val op << = Word32.<< and op >> = Word32.>> and op ~>> = Word32.~>>
@@ -46,16 +46,16 @@ struct
     and wordToWord32 = Word32.fromLargeWord o Word.toLargeWord
     and word8ToWord = Word.fromLargeWord o Word8.toLargeWord
 
-    (* XReg is used for fixed point registers *)
-    datatype xReg = XReg of Word8.word
-    (* FReg is used for the floating point registers *)
-    and      fReg = FReg of Word8.word
+    (* XReg is used for fixed point registers (XZero is encoded as 0) *)
+    datatype xReg = XReg of Word8.word | XZero
+    (* VReg is used for floating point registers *)
+    and      vReg = VReg of Word8.word
 
     structure Sharing =
     struct
         type closureRef = closureRef
         type instr = instr
         type xReg = xReg
-        type fReg = fReg
+        type vReg = vReg
     end
 end;
