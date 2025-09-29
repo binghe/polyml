@@ -45,29 +45,67 @@ sig
 
  (* Integer Register-Immediate Instructions *)
     val addImmediate:         {rd: xReg, rs1: xReg, imm: word} -> instr
+    val addImmediateWord:     {rd: xReg, rs1: xReg, imm: word} -> instr
     and setLessThanImmediate: {rd: xReg, rs1: xReg, imm: word} -> instr
     and andImmediate:         {rd: xReg, rs1: xReg, imm: word} -> instr
     and orImmediate:          {rd: xReg, rs1: xReg, imm: word} -> instr
     and xorImmediate:         {rd: xReg, rs1: xReg, imm: word} -> instr
 
-    val shiftLeftLogicalImmediate:     {rd: xReg, rs1: xReg, imm: word} -> instr
-    and shiftRightLogicalImmediate:    {rd: xReg, rs1: xReg, imm: word} -> instr
-    and shiftRightArithmeticImmediate: {rd: xReg, rs1: xReg, imm: word} -> instr
+    val shiftLeftLogicalImmediate:         {rd: xReg, rs1: xReg, imm: word} -> instr
+    and shiftLeftLogicalImmediateWord:     {rd: xReg, rs1: xReg, imm: word} -> instr
+    and shiftRightLogicalImmediate:        {rd: xReg, rs1: xReg, imm: word} -> instr
+    and shiftRightLogicalImmediateWord:    {rd: xReg, rs1: xReg, imm: word} -> instr
+    and shiftRightArithmeticImmediate:     {rd: xReg, rs1: xReg, imm: word} -> instr
+    and shiftRightArithmeticImmediateWord: {rd: xReg, rs1: xReg, imm: word} -> instr
 
     val loadUpperImmediate:    {rd: xRef, imm: word} -> instr
     and addUpperImmediateToPC: {rd: xRef, imm: word} -> instr
 
  (* Integer Register-Register Operations *)
-    val add:                  {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and sub:                  {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and setLessThan:          {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and setLessThanUnsigned:  {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and andRegister:          {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and orRegister:           {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and xorRegister:          {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and shiftLeftLogical:     {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and shiftRightLogical:    {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and shiftRightArithmetic: {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    val add:                      {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    val addWord:                  {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and sub:                      {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and subWord:                  {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and setLessThan:              {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and setLessThanUnsigned:      {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and andRegister:              {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and orRegister:               {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and xorRegister:              {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and shiftLeftLogical:         {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and shiftLeftLogicalWord:     {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and shiftRightLogical:        {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and shiftRightLogicalWord:    {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and shiftRightArithmetic:     {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and shiftRightArithmeticWord: {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+
+ (* Unconditional Jumps *)
+    val jumpAndLink:         {rd: xReg, imm: word} -> instr
+    and jumpAndLinkRegister: {rd: xReg, rs1: xReg, imm: word} -> instr
+
+ (* Conditional Branches *)
+    val branchEqual:        {rs1: xReg, rs2: xReg, imm: word} -> instr
+    and branchNotEqual:     {rs1: xReg, rs2: xReg, imm: word} -> instr
+    and branchLessThan:     {rs1: xReg, rs2: xReg, imm: word} -> instr
+    and branchGreaterEqual: {rs1: xReg, rs2: xReg, imm: word} -> instr
+
+ (* Load and Store Instructions *)
+    val load:              {rd: xReg, rs1: xReg, imm: word} -> instr
+    val loadWord:          {rd: xReg, rs1: xReg, imm: word} -> instr
+    and loadHigh:          {rd: xReg, rs1: xReg, imm: word} -> instr
+    and loadHighUnsigned:  {rd: xReg, rs1: xReg, imm: word} -> instr
+    and loadByte:          {rd: xReg, rs1: xReg, imm: word} -> instr
+    and loadByteUnsigned:  {rd: xReg, rs1: xReg, imm: word} -> instr
+    and store:             {rs1: xReg, rs2: xReg, imm: word} -> instr
+    and storeWord:         {rs1: xReg, rs2: xReg, imm: word} -> instr
+    and storeHigh:         {rs1: xReg, rs2: xReg, imm: word} -> instr
+    and storeByte:         {rs1: xReg, rs2: xReg, imm: word} -> instr
+
+ (* Memory Ordering Instructions *)
+    val fence: {rd: xReg, rs1: xReg, imm: word} -> instr
+
+ (* Environment Call and Breakpoints *)
+    val environmentCall:  {rd: xReg, rs1: xReg}
+    and environmentBreak: {rd: xReg, rs1: xReg}
 
     structure Sharing:
     sig
