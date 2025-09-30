@@ -107,6 +107,13 @@ sig
     val environmentCall:  {rd: xReg, rs1: xReg}
     and environmentBreak: {rd: xReg, rs1: xReg}
 
+ (* Create the vector of code from the list of instructions and update the
+    closure reference to point to it. *)
+    val generateCode:
+       {instrs: instr list,
+        name: string, parameters: Universal.universal list,
+        resultClosure: closureRef, profileObject: machineWord} -> unit
+
     structure Sharing:
     sig
         type closureRef = closureRef
