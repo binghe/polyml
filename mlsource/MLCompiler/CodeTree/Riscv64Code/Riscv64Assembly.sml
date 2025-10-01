@@ -51,6 +51,8 @@ struct
     (* VReg is used for floating point registers *)
     and      vReg = VReg of Word8.word
 
+    type labels = Word.word ref list ref
+
     fun xRegOrXZ (XReg w) = w
     |   xRegOrXZ XZero = 0w0
     and xRegOnly (XReg w) = w
@@ -79,6 +81,60 @@ struct
     datatype instr =
         SimpleInstr of Word32.word
     |   Label of labels
+
+ (* 2.2 Base Instruction Formats
+
+    R type: .insn r opcode7, funct3, funct7, rd, rs1, rs2
+    +--------+-----+-----+--------+----+---------+
+    | funct7 | rs2 | rs1 | funct3 | rd | opcode7 |
+    +--------+-----+-----+--------+----+---------+
+    31       25    20    15       12   7         0
+  *)
+    fun RType {opcode7, funct3, funct7, rd, rs1, rs2} =
+        SimpleInstr(((word8ToWord32 funct7)         << 0w25) orb
+                    ((word8ToWord32 (xRegOrXZ rs2)) << 0w20) orb
+                    ((word8ToWord32 (xRegOrXZ rs1)) << 0w15) orb
+                    ((word8ToWord32 funct3)         << 0w12) orb
+                    ((word8ToWord32 (xRegOrXZ rd))  << 0w7) orb
+                    (word8ToWord32 opcode7))
+
+ (* I type: .insn i opcode7, funct3, rd, rs1, simm12
+    +--------------+-----+--------+----+---------+
+    | simm12[11:0] | rs1 | funct3 | rd | opcode7 |
+    +--------------+-----+--------+----+---------+
+    31             20    15       12   7         0
+  *)
+    fun IType {opcode7, funct3, rd, rs1, simm12} =
+        SimpleInstr((simm12                         << 0w20) orb
+                    ((word8ToWord32 (xRegOrXZ rs1)) << 0w15) orb
+                    ((word8ToWord32 funct3)         << 0w12) orb
+                    ((word8ToWord32 (xRegOrXZ rd))  << 0w7) orb
+                    (word8ToWord32 opcode7))
+
+ (* S type: .insn s opcode7, funct3, rs2, simm12(rs1)
+    +--------------+-----+-----+--------+-------------+---------+
+    | simm12[11:5] | rs2 | rs1 | funct3 | simm12[4:0] | opcode7 |
+    +--------------+-----+-----+--------+-------------+---------+
+    31             25    20    15       12            7         0
+  *)
+    fun SType {opcode7, funct3, rs1, rs2, simm12} =
+        SimpleInstr(((simm12 >> 0w5)                << 0w25) orb
+                    ((word8ToWord32 (xRegOrXZ rs2)) << 0w20) orb
+                    ((word8ToWord32 (xRegOrXZ rs1)) << 0w15) orb
+                    ((word8ToWord32 funct3)         << 0w12) orb
+                    ((simm12 andb 0wx1f)            << 0w7) orb
+                    (word8ToWord32 opcode7))
+
+ (* U type: .insn u opcode7, rd, simm20
+    +--------------+----+---------+
+    | simm20[19:0] | rd | opcode7 |
+    +--------------+----+---------+
+    31             12   7         0
+  *)
+    fun UType {opcode7, rd, simm20} =
+        SimpleInstr((simm20                        << 0w12) orb
+                    ((word8ToWord32 (xRegOrXZ rd)) << 0w7) orb
+                    (word8ToWord32 opcode7))
 
     structure Sharing =
     struct

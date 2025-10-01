@@ -43,7 +43,7 @@ sig
     val V0:  vReg   and V1:  vReg   and V2:  vReg   and V3: vReg
     and V4:  vReg   and V5:  vReg   and V6:  vReg   and V7: vReg
 
- (* Integer Register-Immediate Instructions *)
+ (* 2.4.1. Integer Register-Immediate Instructions *)
     val addImmediate:         {rd: xReg, rs1: xReg, imm: word} -> instr
     val addImmediateWord:     {rd: xReg, rs1: xReg, imm: word} -> instr
     and setLessThanImmediate: {rd: xReg, rs1: xReg, imm: word} -> instr
@@ -61,7 +61,7 @@ sig
     val loadUpperImmediate:    {rd: xRef, imm: word} -> instr
     and addUpperImmediateToPC: {rd: xRef, imm: word} -> instr
 
- (* Integer Register-Register Operations *)
+ (* 2.4.2. Integer Register-Register Operations *)
     val add:                      {rd: xReg, rs1: xReg, rs2: xReg} -> instr
     val addWord:                  {rd: xReg, rs1: xReg, rs2: xReg} -> instr
     and sub:                      {rd: xReg, rs1: xReg, rs2: xReg} -> instr
@@ -78,17 +78,17 @@ sig
     and shiftRightArithmetic:     {rd: xReg, rs1: xReg, rs2: xReg} -> instr
     and shiftRightArithmeticWord: {rd: xReg, rs1: xReg, rs2: xReg} -> instr
 
- (* Unconditional Jumps *)
+ (* 2.5.1. Unconditional Jumps *)
     val jumpAndLink:         {rd: xReg, imm: word} -> instr
     and jumpAndLinkRegister: {rd: xReg, rs1: xReg, imm: word} -> instr
 
- (* Conditional Branches *)
+ (* 2.5.2. Conditional Branches *)
     val branchEqual:        {rs1: xReg, rs2: xReg, imm: word} -> instr
     and branchNotEqual:     {rs1: xReg, rs2: xReg, imm: word} -> instr
     and branchLessThan:     {rs1: xReg, rs2: xReg, imm: word} -> instr
     and branchGreaterEqual: {rs1: xReg, rs2: xReg, imm: word} -> instr
 
- (* Load and Store Instructions *)
+ (* 2.6. Load and Store Instructions *)
     val load:              {rd: xReg, rs1: xReg, imm: word} -> instr
     val loadWord:          {rd: xReg, rs1: xReg, imm: word} -> instr
     and loadHigh:          {rd: xReg, rs1: xReg, imm: word} -> instr
@@ -100,10 +100,10 @@ sig
     and storeHigh:         {rs1: xReg, rs2: xReg, imm: word} -> instr
     and storeByte:         {rs1: xReg, rs2: xReg, imm: word} -> instr
 
- (* Memory Ordering Instructions *)
+ (* 2.7. Memory Ordering Instructions *)
     val fence: {rd: xReg, rs1: xReg, imm: word} -> instr
 
- (* Environment Call and Breakpoints *)
+ (* 2.8. Environment Call and Breakpoints *)
     val environmentCall:  {rd: xReg, rs1: xReg}
     and environmentBreak: {rd: xReg, rs1: xReg}
 
