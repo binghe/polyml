@@ -84,13 +84,13 @@ struct
 
  (* 2.2 Base Instruction Formats
 
-    R type: .insn r opcode7, funct3, funct7, rd, rs1, rs2
+    R-type: .insn r opcode7, funct3, funct7, rd, rs1, rs2
     +--------+-----+-----+--------+----+---------+
     | funct7 | rs2 | rs1 | funct3 | rd | opcode7 |
     +--------+-----+-----+--------+----+---------+
     31       25    20    15       12   7         0
   *)
-    fun RType {opcode7, funct3, funct7, rd, rs1, rs2} =
+    fun RType (opcode7, funct3, funct7) {rd, rs1, rs2} =
         SimpleInstr(((word8ToWord32 funct7)         << 0w25) orb
                     ((word8ToWord32 (xRegOrXZ rs2)) << 0w20) orb
                     ((word8ToWord32 (xRegOrXZ rs1)) << 0w15) orb
@@ -98,26 +98,26 @@ struct
                     ((word8ToWord32 (xRegOrXZ rd))  << 0w7) orb
                     (word8ToWord32 opcode7))
 
- (* I type: .insn i opcode7, funct3, rd, rs1, simm12
+ (* I-type: .insn i opcode7, funct3, rd, rs1, simm12
     +--------------+-----+--------+----+---------+
     | simm12[11:0] | rs1 | funct3 | rd | opcode7 |
     +--------------+-----+--------+----+---------+
     31             20    15       12   7         0
   *)
-    fun IType {opcode7, funct3, rd, rs1, simm12} =
+    fun IType (opcode7, funct3) {rd, rs1, simm12} =
         SimpleInstr((simm12                         << 0w20) orb
                     ((word8ToWord32 (xRegOrXZ rs1)) << 0w15) orb
                     ((word8ToWord32 funct3)         << 0w12) orb
                     ((word8ToWord32 (xRegOrXZ rd))  << 0w7) orb
                     (word8ToWord32 opcode7))
 
- (* S type: .insn s opcode7, funct3, rs2, simm12(rs1)
+ (* S-type: .insn s opcode7, funct3, rs1, rs2, simm12
     +--------------+-----+-----+--------+-------------+---------+
     | simm12[11:5] | rs2 | rs1 | funct3 | simm12[4:0] | opcode7 |
     +--------------+-----+-----+--------+-------------+---------+
     31             25    20    15       12            7         0
   *)
-    fun SType {opcode7, funct3, rs1, rs2, simm12} =
+    fun SType (opcode7, funct3) {rs1, rs2, simm12} =
         SimpleInstr(((simm12 >> 0w5)                << 0w25) orb
                     ((word8ToWord32 (xRegOrXZ rs2)) << 0w20) orb
                     ((word8ToWord32 (xRegOrXZ rs1)) << 0w15) orb
@@ -125,22 +125,36 @@ struct
                     ((simm12 andb 0wx1f)            << 0w7) orb
                     (word8ToWord32 opcode7))
 
- (* U type: .insn u opcode7, rd, simm20
+ (* U-type: .insn u opcode7, rd, simm20
     +--------------+----+---------+
     | simm20[19:0] | rd | opcode7 |
     +--------------+----+---------+
     31             12   7         0
   *)
-    fun UType {opcode7, rd, simm20} =
-        SimpleInstr((simm20                        << 0w12) orb
-                    ((word8ToWord32 (xRegOrXZ rd)) << 0w7) orb
+    fun UType opcode7 {rd, simm20} =
+        SimpleInstr((simm20                         << 0w12) orb
+                    ((word8ToWord32 (xRegOrXZ rd))  << 0w7) orb
                     (word8ToWord32 opcode7))
+
+    local
+        val op_imm   = 0w19 (* #b0010011 *)
+        and op_imm32 = 0w27 (* #b0011011 *)
+    in
+        val addImmediate          = IType (op_imm,   0w0)
+        val addImmediateW         = IType (op_imm32, 0w0)
+        and setLessThanImmediate  = IType (op_imm,   0w2)
+        and setLessThanImmediateU = IType (op_imm,   0w3)
+        and xorImmediate          = IType (op_imm,   0w4)
+        and orImmediate           = IType (op_imm,   0w6)
+        and andImmediate          = IType (op_imm,   0w7)
+    end
 
     structure Sharing =
     struct
         type closureRef = closureRef
-        type instr = instr
-        type xReg = xReg
-        type vReg = vReg
+        type instr      = instr
+        type xReg       = xReg
+        type vReg       = vReg
+        type labels     = labels
     end
 end;

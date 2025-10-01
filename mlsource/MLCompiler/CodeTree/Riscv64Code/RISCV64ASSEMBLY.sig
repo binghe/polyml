@@ -44,39 +44,40 @@ sig
     and V4:  vReg   and V5:  vReg   and V6:  vReg   and V7: vReg
 
  (* 2.4.1. Integer Register-Immediate Instructions *)
-    val addImmediate:         {rd: xReg, rs1: xReg, imm: word} -> instr
-    val addImmediateWord:     {rd: xReg, rs1: xReg, imm: word} -> instr
-    and setLessThanImmediate: {rd: xReg, rs1: xReg, imm: word} -> instr
-    and andImmediate:         {rd: xReg, rs1: xReg, imm: word} -> instr
-    and orImmediate:          {rd: xReg, rs1: xReg, imm: word} -> instr
-    and xorImmediate:         {rd: xReg, rs1: xReg, imm: word} -> instr
+    val addImmediate:          {rd: xReg, rs1: xReg, imm: word} -> instr
+    val addImmediateW:         {rd: xReg, rs1: xReg, imm: word} -> instr
+    and setLessThanImmediate:  {rd: xReg, rs1: xReg, imm: word} -> instr
+    and setLessThanImmediateU: {rd: xReg, rs1: xReg, imm: word} -> instr
+    and andImmediate:          {rd: xReg, rs1: xReg, imm: word} -> instr
+    and orImmediate:           {rd: xReg, rs1: xReg, imm: word} -> instr
+    and xorImmediate:          {rd: xReg, rs1: xReg, imm: word} -> instr
 
-    val shiftLeftLogicalImmediate:         {rd: xReg, rs1: xReg, imm: word} -> instr
-    and shiftLeftLogicalImmediateWord:     {rd: xReg, rs1: xReg, imm: word} -> instr
-    and shiftRightLogicalImmediate:        {rd: xReg, rs1: xReg, imm: word} -> instr
-    and shiftRightLogicalImmediateWord:    {rd: xReg, rs1: xReg, imm: word} -> instr
-    and shiftRightArithmeticImmediate:     {rd: xReg, rs1: xReg, imm: word} -> instr
-    and shiftRightArithmeticImmediateWord: {rd: xReg, rs1: xReg, imm: word} -> instr
+    val shiftLeftLogicalImmediate:      {rd: xReg, rs1: xReg, imm: word} -> instr
+    and shiftLeftLogicalImmediateW:     {rd: xReg, rs1: xReg, imm: word} -> instr
+    and shiftRightLogicalImmediate:     {rd: xReg, rs1: xReg, imm: word} -> instr
+    and shiftRightLogicalImmediateW:    {rd: xReg, rs1: xReg, imm: word} -> instr
+    and shiftRightArithmeticImmediate:  {rd: xReg, rs1: xReg, imm: word} -> instr
+    and shiftRightArithmeticImmediateW: {rd: xReg, rs1: xReg, imm: word} -> instr
 
     val loadUpperImmediate:    {rd: xRef, imm: word} -> instr
     and addUpperImmediateToPC: {rd: xRef, imm: word} -> instr
 
  (* 2.4.2. Integer Register-Register Operations *)
-    val add:                      {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    val addWord:                  {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and sub:                      {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and subWord:                  {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and setLessThan:              {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and setLessThanUnsigned:      {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and andRegister:              {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and orRegister:               {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and xorRegister:              {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and shiftLeftLogical:         {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and shiftLeftLogicalWord:     {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and shiftRightLogical:        {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and shiftRightLogicalWord:    {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and shiftRightArithmetic:     {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    and shiftRightArithmeticWord: {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    val add:                   {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    val addWord:               {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and sub:                   {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and subWord:               {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and setLessThan:           {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and setLessThanU:          {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and andRegister:           {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and orRegister:            {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and xorRegister:           {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and shiftLeftLogical:      {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and shiftLeftLogicalW:     {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and shiftRightLogical:     {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and shiftRightLogicalW:    {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and shiftRightArithmetic:  {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and shiftRightArithmeticW: {rd: xReg, rs1: xReg, rs2: xReg} -> instr
 
  (* 2.5.1. Unconditional Jumps *)
     val jumpAndLink:         {rd: xReg, imm: word} -> instr
@@ -89,16 +90,16 @@ sig
     and branchGreaterEqual: {rs1: xReg, rs2: xReg, imm: word} -> instr
 
  (* 2.6. Load and Store Instructions *)
-    val load:              {rd: xReg, rs1: xReg, imm: word} -> instr
-    val loadWord:          {rd: xReg, rs1: xReg, imm: word} -> instr
-    and loadHigh:          {rd: xReg, rs1: xReg, imm: word} -> instr
-    and loadHighUnsigned:  {rd: xReg, rs1: xReg, imm: word} -> instr
-    and loadByte:          {rd: xReg, rs1: xReg, imm: word} -> instr
-    and loadByteUnsigned:  {rd: xReg, rs1: xReg, imm: word} -> instr
-    and store:             {rs1: xReg, rs2: xReg, imm: word} -> instr
-    and storeWord:         {rs1: xReg, rs2: xReg, imm: word} -> instr
-    and storeHigh:         {rs1: xReg, rs2: xReg, imm: word} -> instr
-    and storeByte:         {rs1: xReg, rs2: xReg, imm: word} -> instr
+    val load:       {rd: xReg, rs1: xReg, imm: word} -> instr
+    val loadWord:   {rd: xReg, rs1: xReg, imm: word} -> instr
+    and loadHigh:   {rd: xReg, rs1: xReg, imm: word} -> instr
+    and loadHighU:  {rd: xReg, rs1: xReg, imm: word} -> instr
+    and loadByte:   {rd: xReg, rs1: xReg, imm: word} -> instr
+    and loadByteU:  {rd: xReg, rs1: xReg, imm: word} -> instr
+    and store:      {rs1: xReg, rs2: xReg, imm: word} -> instr
+    and storeWord:  {rs1: xReg, rs2: xReg, imm: word} -> instr
+    and storeHigh:  {rs1: xReg, rs2: xReg, imm: word} -> instr
+    and storeByte:  {rs1: xReg, rs2: xReg, imm: word} -> instr
 
  (* 2.7. Memory Ordering Instructions *)
     val fence: {rd: xReg, rs1: xReg, imm: word} -> instr
