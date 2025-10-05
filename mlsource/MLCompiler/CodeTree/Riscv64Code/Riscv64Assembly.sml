@@ -1,4 +1,5 @@
 (*
+    Copyright (c) 2021-3 David C. J. Matthews
     Copyright (c) 2025  Chun Tian (binghe) <binghe.lisp@gmail.com>
 
     This library is free software; you can redistribute it and/or
@@ -122,7 +123,7 @@ struct
                     ((word8ToWord32 (xRegOrXZ rs2)) << 0w20) orb
                     ((word8ToWord32 (xRegOrXZ rs1)) << 0w15) orb
                     ((word8ToWord32 funct3)         << 0w12) orb
-                    ((simm12 andb 0wx1f)            << 0w7) orb
+                    ((simm12 andb 0wx1f (*=11111*)) << 0w7) orb
                     (word8ToWord32 opcode7))
 
  (* U-type: .insn u opcode7, rd, simm20
@@ -137,11 +138,11 @@ struct
                     (word8ToWord32 opcode7))
 
     local
-        val op_imm   = 0w19 (* #b0010011 *)
-        and op_imm32 = 0w27 (* #b0011011 *)
+        val op_imm   :Word8.word = 0w19 (* 0010011 *)
+        and op_imm32 :Word8.word = 0w27 (* 0011011 *)
     in
         val addImmediate          = IType (op_imm,   0w0)
-        val addImmediateW         = IType (op_imm32, 0w0)
+        and addImmediateW         = IType (op_imm32, 0w0)
         and setLessThanImmediate  = IType (op_imm,   0w2)
         and setLessThanImmediateU = IType (op_imm,   0w3)
         and xorImmediate          = IType (op_imm,   0w4)

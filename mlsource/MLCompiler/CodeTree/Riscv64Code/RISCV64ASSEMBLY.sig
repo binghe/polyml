@@ -1,4 +1,5 @@
 (*
+    Copyright (c) 2021-2 David C. J. Matthews
     Copyright (c) 2025  Chun Tian (binghe) <binghe.lisp@gmail.com>
 
     This library is free software; you can redistribute it and/or
@@ -64,7 +65,7 @@ sig
 
  (* 2.4.2. Integer Register-Register Operations *)
     val add:                   {rd: xReg, rs1: xReg, rs2: xReg} -> instr
-    val addWord:               {rd: xReg, rs1: xReg, rs2: xReg} -> instr
+    and addWord:               {rd: xReg, rs1: xReg, rs2: xReg} -> instr
     and sub:                   {rd: xReg, rs1: xReg, rs2: xReg} -> instr
     and subWord:               {rd: xReg, rs1: xReg, rs2: xReg} -> instr
     and setLessThan:           {rd: xReg, rs1: xReg, rs2: xReg} -> instr
@@ -91,7 +92,7 @@ sig
 
  (* 2.6. Load and Store Instructions *)
     val load:       {rd: xReg, rs1: xReg, imm: word} -> instr
-    val loadWord:   {rd: xReg, rs1: xReg, imm: word} -> instr
+    and loadWord:   {rd: xReg, rs1: xReg, imm: word} -> instr
     and loadHigh:   {rd: xReg, rs1: xReg, imm: word} -> instr
     and loadHighU:  {rd: xReg, rs1: xReg, imm: word} -> instr
     and loadByte:   {rd: xReg, rs1: xReg, imm: word} -> instr
