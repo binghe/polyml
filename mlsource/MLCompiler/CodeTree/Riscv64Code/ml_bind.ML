@@ -104,8 +104,8 @@ in
         Arm64CodetreeToICode (
             structure BackendTree   = BackendIntermediateCode
             structure Debug         = Debug
-            structure Arm64ICode    = Arm64ICode
-            structure Arm64Foreign  = Arm64Foreign
+            structure Arm64ICode    = Riscv64ICode
+            structure Arm64Foreign  = Riscv4Foreign
             structure ICodeTransform = Riscv64ICodeTransform
             structure CodeArray     = CodeArray
             and       Pretty        = Pretty

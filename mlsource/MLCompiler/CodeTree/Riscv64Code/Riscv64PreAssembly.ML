@@ -18,15 +18,15 @@
 
 (* The pre-assembly layer goes below the icode and allows peep-hole optimisation. *)
 
-functor Arm64PreAssembly(
+functor Riscv64PreAssembly(
 
-    structure Arm64Assembly: ARM64ASSEMBLY
+    structure Riscv64Assembly: RISCV64ASSEMBLY
     structure Debug: DEBUG
     structure Pretty: PRETTY
 
 ): ARM64PREASSEMBLY =
 struct
-    open Arm64Assembly
+    open Riscv64Assembly
 
     exception InternalError = Misc.InternalError
 
@@ -160,8 +160,6 @@ struct
             SOME(shift(0w0, v))
         end
         else NONE
-
-
 
     (* Optimise the pre-assembler code and then generate the final code. *)
     fun generateFinalCode {instrs, name, parameters, resultClosure, profileObject, labelMaker=ref labelCount} =
