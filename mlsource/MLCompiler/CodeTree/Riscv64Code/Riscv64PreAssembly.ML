@@ -17,26 +17,22 @@
 *)
 
 (* The pre-assembly layer goes below the icode and allows peep-hole optimisation. *)
-
-functor Riscv64PreAssembly(
-
+functor Riscv64PreAssembly (
     structure Riscv64Assembly: RISCV64ASSEMBLY
     structure Debug: DEBUG
     structure Pretty: PRETTY
-
-): ARM64PREASSEMBLY =
+) : ARM64PREASSEMBLY =
 struct
     open Riscv64Assembly
 
     exception InternalError = Misc.InternalError
 
-    (* Reversed cons and append to make the code easier to read. *)
+ (* Reversed cons and append to make the code easier to read *)
     infix 5 <::> <@>
     fun tl <::> hd = hd :: tl
     and snd <@> fst = fst @ snd
 
-    (* Many of the datatypes are inherited from Arm64Assembly *)
-
+ (* Many of the datatypes are inherited from Arm64Assembly *)
     datatype loadType = Load64 | Load32 | Load16 | Load8
     and opSize = OpSize32 | OpSize64
     and logicalOp = LogAnd | LogOr | LogXor
@@ -54,7 +50,7 @@ struct
     and condSet = CondSet | CondSetIncr | CondSetInvert | CondSetNegate
     and bitfieldKind = BFUnsigned | BFSigned | BFInsert
     and brRegType = BRRBranch | BRRAndLink | BRRReturn
-        (* Some of the atomic operations added in 8.1 *)
+ (* Some of the atomic operations added in 8.1 *)
     and atomicOp = LoadAddAL | LoadUmaxAL | SwapAL | LoadAddAcquire | LoadUMaxAcquire | SwapRelease
 
     datatype label = Label of int
@@ -63,7 +59,7 @@ struct
     fun createLabel(r as ref n) = Label n before r := n+1
 
     datatype precode =
-        (* Basic instructions *)
+     (* Basic instructions *)
         AddImmediate of {regN: xReg, regD: xReg, immed: word, shifted: bool, opSize: opSize, setFlags: bool}
     |   SubImmediate of {regN: xReg, regD: xReg, immed: word, shifted: bool, opSize: opSize, setFlags: bool}
     |   AddShiftedReg of {regM: xReg, regN: xReg, regD: xReg, shift: shiftType, opSize: opSize, setFlags: bool}
@@ -95,14 +91,14 @@ struct
     |   StoreRegIndexed of {regT: xReg, regN: xReg, regM: xReg, loadType: loadType, option: scale extend}
     |   LoadFPRegIndexed of {regT: vReg, regN: xReg, regM: xReg, floatSize: floatSize, option: scale extend}
     |   StoreFPRegIndexed of {regT: vReg, regN: xReg, regM: xReg, floatSize: floatSize, option: scale extend}
-        (* LoadAcquire and StoreRelease are used for mutables. *)
+     (* LoadAcquire and StoreRelease are used for mutables. *)
     |   LoadAcquireReg of {regN: xReg, regT: xReg, loadType: loadType}
     |   StoreReleaseReg of {regN: xReg, regT: xReg, loadType: loadType}
-        (* LoadAcquireExclusiveRegister and StoreReleaseExclusiveRegister are used for mutexes. *)
+     (* LoadAcquireExclusiveRegister and StoreReleaseExclusiveRegister are used for mutexes. *)
     |   LoadAcquireExclusiveRegister of {regN: xReg, regT: xReg}
     |   StoreReleaseExclusiveRegister of {regS: xReg, regT: xReg, regN: xReg}
     |   MemBarrier
-        (* Additional atomic operations. *)
+     (* Additional atomic operations. *)
     |   AtomicExtension of { regT: xReg, regN: xReg, regS: xReg, atOp: atomicOp }
     |   LoadRegPair of
             { regT1: xReg, regT2: xReg, regN: xReg, unitOffset: int, loadType: loadType, unscaledType: unscaledType}
@@ -118,7 +114,7 @@ struct
     |   ShiftRegisterVariable of {regM: xReg, regN: xReg, regD: xReg, opSize: opSize, shiftDirection: shiftDirection}
     |   BitwiseLogical of { bits: Word64.word, regN: xReg, regD: xReg, opSize: opSize, setFlags: bool, logOp: logicalOp}
     |   CountLeadingZeros of {regN: xReg, regD: xReg, opSize: opSize}
-        (* Floating point *)
+     (* Floating point *)
     |   MoveGeneralToFP of { regN: xReg, regD: vReg, floatSize: floatSize}
     |   MoveFPToGeneral of {regN: vReg, regD: xReg, floatSize: floatSize}
     |   CvtIntToFP of { regN: xReg, regD: vReg, floatSize: floatSize, opSize: opSize}
@@ -126,7 +122,7 @@ struct
     |   FPBinaryOp of { regM: vReg, regN: vReg, regD: vReg, floatSize: floatSize, fpOp: fpBinary}
     |   FPComparison of { regM: vReg, regN: vReg, floatSize: floatSize}
     |   FPUnaryOp of {regN: vReg, regD: vReg, fpOp: fpUnary}
-        (* Branches and Labels. *)
+     (* Branches and Labels. *)
     |   SetLabel of label
     |   ConditionalBranch of condition * label
     |   UnconditionalBranch of label
@@ -135,7 +131,7 @@ struct
     |   LoadLabelAddress of xReg * label
     |   TestBitBranch of { test: xReg, bit: Word8.word, label: label, onZero: bool }
     |   CompareBranch of { test: xReg, label: label, onZero: bool, opSize: opSize }
-        (* Composite instructions *)
+     (* Composite instructions *)
     |   MoveXRegToXReg of {sReg: xReg, dReg: xReg}
     |   LoadNonAddr of xReg * Word64.word
     |   LoadFPConst of {dest: vReg, value: Word64.word, floatSize: floatSize, work: xReg}
@@ -143,8 +139,8 @@ struct
     |   RTSTrap of { rtsEntry: int, work: xReg, save: xReg list }
     |   AllocateMemoryFixedSize of { bytes: word, dest: xReg, save: xReg list, work: xReg }
     |   AllocateMemoryVariableSize of { sizeReg: xReg, dest: xReg, save: xReg list, work: xReg }
-        (* Branch table for indexed case. startLabel is the address of the first label in
-           the list.  The branch table is a sequence of unconditional branches. *)
+     (* Branch table for indexed case. startLabel is the address of the first label in
+        the list.  The branch table is a sequence of unconditional branches. *)
     |   BranchTable of { startLabel: label, brTable: label list }
     |   LoadGlobalHeapBaseInCallback of xReg
     |   Yield

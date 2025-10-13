@@ -47,19 +47,14 @@ struct
     and wordToWord32 = Word32.fromLargeWord o Word.toLargeWord
     and word8ToWord = Word.fromLargeWord o Word8.toLargeWord
 
-    (* XReg is used for fixed point registers (XZero is encoded as 0) *)
-    datatype xReg = XReg of Word8.word | XZero
-    (* VReg is used for floating point registers *)
+    datatype xReg = XReg of Word8.word
     and      vReg = VReg of Word8.word
+    fun xReg (XReg w) = w
+    fun vReg (VReg v) = v
 
     type labels = Word.word ref list ref
 
-    fun xRegOrXZ (XReg w) = w
-    |   xRegOrXZ XZero = 0w0
-    and xRegOnly (XReg w) = w
-    |   xRegOnly XZero = raise InternalError "XZero not valid here"
-
-    val                     X1  = XReg 0w1  and X2  = XReg 0w2   and X3  = XReg 0w3
+    val X0  = XReg 0w0  and X1  = XReg 0w1  and X2  = XReg 0w2   and X3  = XReg 0w3
     and X4  = XReg 0w4  and X5  = XReg 0w5  and X6  = XReg 0w6   and X7  = XReg 0w7
     and X8  = XReg 0w8  and X9  = XReg 0w9  and X10 = XReg 0w10  and X11 = XReg 0w11
     and X12 = XReg 0w12 and X13 = XReg 0w13 and X14 = XReg 0w14  and X15 = XReg 0w15
@@ -74,8 +69,6 @@ struct
     and X_MLStackPtr        = X28 (* ML Stack pointer. *)
     and X_LinkReg           = X30 (* Link reg - return address *)
 
-    fun vReg (VReg v) = v
-    (* Only the first eight registers are currently used by ML. *)
     val V0 = VReg 0w0 and V1 = VReg 0w1 and V2 = VReg 0w2 and V3 = VReg 0w3
     and V4 = VReg 0w4 and V5 = VReg 0w5 and V6 = VReg 0w6 and V7 = VReg 0w7
 

@@ -24,8 +24,7 @@ sig
     type xReg
     type vReg
 
- (* The missing X0 is XZero *)
-    val                 X1:  xReg   and X2:  xReg   and X3: xReg
+    val X0:  xReg   and X1:  xReg   and X2:  xReg   and X3: xReg
     and X4:  xReg   and X5:  xReg   and X6:  xReg   and X7: xReg
     and X8:  xReg   and X9:  xReg   and X10: xReg   and X11: xReg
     and X12: xReg   and X13: xReg   and X14: xReg   and X15: xReg
