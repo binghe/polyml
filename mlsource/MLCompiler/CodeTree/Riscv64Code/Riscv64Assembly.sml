@@ -1,6 +1,6 @@
 (*
-    Copyright (c) 2021-3 David C. J. Matthews
-    Copyright (c) 2025  Chun Tian (binghe) <binghe.lisp@gmail.com>
+    Copyright(c) 2021-2023 David C. J. Matthews
+    Copyright(c) 2025      Chun Tian (binghe)
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
