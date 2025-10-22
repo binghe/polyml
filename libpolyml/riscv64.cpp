@@ -58,22 +58,22 @@
 #include "int_opcodes.h"
 
 /*
-* ARM64 register use:
-* X0        First argument and return value
-* X1-X7     Second-eighth argument
-* X8        Indirect result (C), ML closure pointer on entry
-* X9-X15    Volatile scratch registers
+* RISC-V64 register use:
+* X0        Zero register.
+* X1-X7     Second-eighth argument.
+* X8        Indirect result (C), ML closure pointer on entry.
+* X9-X15    Volatile scratch registers (7 in total).
 * X16-17    Intra-procedure-call (C).  Only used for special cases in ML.
-* X18       Platform register. Not used in ML.
+* X18       First argument and return value.
 * X19-X23   Non-volatile (C).  Scratch registers (ML).
 * X24       Non-volatile (C).  Scratch register (ML).  Heap base in 32-in-64.
-* X25       ML Heap limit pointer
+* X25       ML Heap limit pointer.
 * X26       ML assembly interface pointer.  Non-volatile (C).
 * X27       ML Heap allocation pointer.  Non-volatile (C).
 * X28       ML Stack pointer. Non-volatile (C).
-* X29       Frame pointer (C). Not used in ML
-* X30       Link register.
-* X31       Stack pointer (C).  Only used when calling C.  Also zero register.
+* X29       Frame pointer (C). Not used in ML.
+* X30       Link register (return address).
+* X31       Stack pointer (C).  Only used when calling C.
 *
 * Floating point registers:
 * V0        First argument and return value
