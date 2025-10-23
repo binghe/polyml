@@ -60,17 +60,25 @@ struct
 
     datatype precode =
      (* Basic instructions *)
-        AddImmediate of {regN: xReg, regD: xReg, immed: word, shifted: bool, opSize: opSize, setFlags: bool}
-    |   SubImmediate of {regN: xReg, regD: xReg, immed: word, shifted: bool, opSize: opSize, setFlags: bool}
-    |   AddShiftedReg of {regM: xReg, regN: xReg, regD: xReg, shift: shiftType, opSize: opSize, setFlags: bool}
-    |   SubShiftedReg of {regM: xReg, regN: xReg, regD: xReg, shift: shiftType, opSize: opSize, setFlags: bool}
-    |   AddExtendedReg of {regM: xReg, regN: xReg, regD: xReg, extend: Word8.word extend, opSize: opSize, setFlags: bool}
-    |   SubExtendedReg of {regM: xReg, regN: xReg, regD: xReg, extend: Word8.word extend, opSize: opSize, setFlags: bool}
-    |   MultiplyAndAddSub of {regM: xReg, regN: xReg, regA: xReg, regD: xReg, multKind: multKind}
+        AddImmediate of {regN: xReg, regD: xReg, immed: word, shifted: bool,
+                         opSize: opSize, setFlags: bool}
+    |   SubImmediate of {regN: xReg, regD: xReg, immed: word, shifted: bool,
+                         opSize: opSize, setFlags: bool}
+    |   AddShiftedReg of {regM: xReg, regN: xReg, regD: xReg, shift: shiftType,
+                          opSize: opSize, setFlags: bool}
+    |   SubShiftedReg of {regM: xReg, regN: xReg, regD: xReg, shift: shiftType,
+                          opSize: opSize, setFlags: bool}
+    |   AddExtendedReg of {regM: xReg, regN: xReg, regD: xReg,
+                           extend: Word8.word extend, opSize: opSize, setFlags: bool}
+    |   SubExtendedReg of {regM: xReg, regN: xReg, regD: xReg,
+                           extend: Word8.word extend, opSize: opSize, setFlags: bool}
+    |   MultiplyAndAddSub of {regM: xReg, regN: xReg, regA: xReg, regD: xReg,
+                              multKind: multKind}
     |   DivideRegs of
             {regM: xReg, regN: xReg, regD: xReg, isSigned: bool, opSize: opSize}
     |   LogicalShiftedReg of
-            {regM: xReg, regN: xReg, regD: xReg, shift: shiftType, logOp: logicalOp, opSize: opSize, setFlags: bool}
+            {regM: xReg, regN: xReg, regD: xReg, shift: shiftType, logOp: logicalOp,
+             opSize: opSize, setFlags: bool}
     |   LoadRegScaled of
             {regT: xReg, regN: xReg, unitOffset: int, loadType: loadType}
     |   LoadFPRegScaled of
@@ -80,17 +88,25 @@ struct
     |   StoreFPRegScaled of
             {regT: vReg, regN: xReg, unitOffset: int, floatSize: floatSize}
     |   LoadRegUnscaled of
-            {regT: xReg, regN: xReg, byteOffset: int, loadType: loadType, unscaledType: unscaledType}
+            {regT: xReg, regN: xReg, byteOffset: int, loadType: loadType,
+             unscaledType: unscaledType}
     |   StoreRegUnscaled of
-            {regT: xReg, regN: xReg, byteOffset: int, loadType: loadType, unscaledType: unscaledType}
+            {regT: xReg, regN: xReg, byteOffset: int, loadType: loadType,
+             unscaledType: unscaledType}
     |   LoadFPRegUnscaled of
-            {regT: vReg, regN: xReg, byteOffset: int, floatSize: floatSize, unscaledType: unscaledType}
+            {regT: vReg, regN: xReg, byteOffset: int, floatSize: floatSize,
+             unscaledType: unscaledType}
     |   StoreFPRegUnscaled of
-            {regT: vReg, regN: xReg, byteOffset: int, floatSize: floatSize, unscaledType: unscaledType}
-    |   LoadRegIndexed of {regT: xReg, regN: xReg, regM: xReg, loadType: loadType, option: scale extend}
-    |   StoreRegIndexed of {regT: xReg, regN: xReg, regM: xReg, loadType: loadType, option: scale extend}
-    |   LoadFPRegIndexed of {regT: vReg, regN: xReg, regM: xReg, floatSize: floatSize, option: scale extend}
-    |   StoreFPRegIndexed of {regT: vReg, regN: xReg, regM: xReg, floatSize: floatSize, option: scale extend}
+            {regT: vReg, regN: xReg, byteOffset: int, floatSize: floatSize,
+             unscaledType: unscaledType}
+    |   LoadRegIndexed of {regT: xReg, regN: xReg, regM: xReg, loadType: loadType,
+                           option: scale extend}
+    |   StoreRegIndexed of {regT: xReg, regN: xReg, regM: xReg, loadType: loadType,
+                            option: scale extend}
+    |   LoadFPRegIndexed of {regT: vReg, regN: xReg, regM: xReg, floatSize: floatSize,
+                             option: scale extend}
+    |   StoreFPRegIndexed of {regT: vReg, regN: xReg, regM: xReg, floatSize: floatSize,
+                              option: scale extend}
      (* LoadAcquire and StoreRelease are used for mutables. *)
     |   LoadAcquireReg of {regN: xReg, regT: xReg, loadType: loadType}
     |   StoreReleaseReg of {regN: xReg, regT: xReg, loadType: loadType}
@@ -101,26 +117,36 @@ struct
      (* Additional atomic operations. *)
     |   AtomicExtension of { regT: xReg, regN: xReg, regS: xReg, atOp: atomicOp }
     |   LoadRegPair of
-            { regT1: xReg, regT2: xReg, regN: xReg, unitOffset: int, loadType: loadType, unscaledType: unscaledType}
+            {regT1: xReg, regT2: xReg, regN: xReg, unitOffset: int,
+             loadType: loadType, unscaledType: unscaledType}
     |   StoreRegPair of
-            { regT1: xReg, regT2: xReg, regN: xReg, unitOffset: int, loadType: loadType, unscaledType: unscaledType}
+            {regT1: xReg, regT2: xReg, regN: xReg, unitOffset: int,
+             loadType: loadType, unscaledType: unscaledType}
     |   LoadFPRegPair of
-            { regT1: vReg, regT2: vReg, regN: xReg, unitOffset: int, floatSize: floatSize, unscaledType: unscaledType}
+            {regT1: vReg, regT2: vReg, regN: xReg, unitOffset: int,
+             floatSize: floatSize, unscaledType: unscaledType}
     |   StoreFPRegPair of
-            { regT1: vReg, regT2: vReg, regN: xReg, unitOffset: int, floatSize: floatSize, unscaledType: unscaledType}
+            {regT1: vReg, regT2: vReg, regN: xReg, unitOffset: int,
+             floatSize: floatSize, unscaledType: unscaledType}
     |   ConditionalSet of
-            {regD: xReg, regTrue: xReg, regFalse: xReg, cond: condition, condSet: condSet, opSize: opSize}
-    |   BitField of {immr: word, imms: word, regN: xReg, regD: xReg, opSize: opSize, bitfieldKind: bitfieldKind}
-    |   ShiftRegisterVariable of {regM: xReg, regN: xReg, regD: xReg, opSize: opSize, shiftDirection: shiftDirection}
-    |   BitwiseLogical of { bits: Word64.word, regN: xReg, regD: xReg, opSize: opSize, setFlags: bool, logOp: logicalOp}
+            {regD: xReg, regTrue: xReg, regFalse: xReg, cond: condition,
+             condSet: condSet, opSize: opSize}
+    |   BitField of {immr: word, imms: word, regN: xReg, regD: xReg, opSize: opSize,
+                     bitfieldKind: bitfieldKind}
+    |   ShiftRegisterVariable of {regM: xReg, regN: xReg, regD: xReg, opSize: opSize,
+                                  shiftDirection: shiftDirection}
+    |   BitwiseLogical of {bits: Word64.word, regN: xReg, regD: xReg, opSize: opSize,
+                           setFlags: bool, logOp: logicalOp}
     |   CountLeadingZeros of {regN: xReg, regD: xReg, opSize: opSize}
      (* Floating point *)
-    |   MoveGeneralToFP of { regN: xReg, regD: vReg, floatSize: floatSize}
+    |   MoveGeneralToFP of {regN: xReg, regD: vReg, floatSize: floatSize}
     |   MoveFPToGeneral of {regN: vReg, regD: xReg, floatSize: floatSize}
-    |   CvtIntToFP of { regN: xReg, regD: vReg, floatSize: floatSize, opSize: opSize}
-    |   CvtFloatToInt of { round: IEEEReal.rounding_mode, regN: vReg, regD: xReg, floatSize: floatSize, opSize: opSize}
-    |   FPBinaryOp of { regM: vReg, regN: vReg, regD: vReg, floatSize: floatSize, fpOp: fpBinary}
-    |   FPComparison of { regM: vReg, regN: vReg, floatSize: floatSize}
+    |   CvtIntToFP of {regN: xReg, regD: vReg, floatSize: floatSize, opSize: opSize}
+    |   CvtFloatToInt of {round: IEEEReal.rounding_mode, regN: vReg, regD: xReg,
+                          floatSize: floatSize, opSize: opSize}
+    |   FPBinaryOp of {regM: vReg, regN: vReg, regD: vReg, floatSize: floatSize,
+                       fpOp: fpBinary}
+    |   FPComparison of {regM: vReg, regN: vReg, floatSize: floatSize}
     |   FPUnaryOp of {regN: vReg, regD: vReg, fpOp: fpUnary}
      (* Branches and Labels. *)
     |   SetLabel of label
@@ -136,9 +162,9 @@ struct
     |   LoadNonAddr of xReg * Word64.word
     |   LoadFPConst of {dest: vReg, value: Word64.word, floatSize: floatSize, work: xReg}
     |   LoadAddr of xReg * machineWord
-    |   RTSTrap of { rtsEntry: int, work: xReg, save: xReg list }
-    |   AllocateMemoryFixedSize of { bytes: word, dest: xReg, save: xReg list, work: xReg }
-    |   AllocateMemoryVariableSize of { sizeReg: xReg, dest: xReg, save: xReg list, work: xReg }
+    |   RTSTrap of {rtsEntry: int, work: xReg, save: xReg list}
+    |   AllocateMemoryFixedSize of {bytes: word, dest: xReg, save: xReg list, work: xReg}
+    |   AllocateMemoryVariableSize of {sizeReg: xReg, dest: xReg, save: xReg list, work: xReg}
      (* Branch table for indexed case. startLabel is the address of the first label in
         the list.  The branch table is a sequence of unconditional branches. *)
     |   BranchTable of { startLabel: label, brTable: label list }
@@ -158,9 +184,11 @@ struct
         else NONE
 
     (* Optimise the pre-assembler code and then generate the final code. *)
-    fun generateFinalCode {instrs, name, parameters, resultClosure, profileObject, labelMaker=ref labelCount} =
+    fun generateFinalCode {instrs, name, parameters, resultClosure, profileObject,
+                           labelMaker=ref labelCount} =
     let
-        val labelTargets = Array.tabulate(labelCount, fn i => (Arm64Assembly.createLabel(), i) )
+        val labelTargets =
+            Array.tabulate(labelCount, fn i => (Arm64Assembly.createLabel(), i))
 
         (* Follow the chain of forwarded labels. *)
         local
@@ -485,19 +513,25 @@ struct
         |   toAssembler(MemBarrier :: rest, code) =
                 toAssembler(rest, code <::> dmbIsh)
 
-        |   toAssembler(AtomicExtension{ regT, regN, regS, atOp} :: rest, code) =
+        |   toAssembler(AtomicExtension{regT, regN, regS, atOp} :: rest, code) =
             let
                 val instr =
                     case atOp of
-                        LoadAddAL => loadAddAL | LoadUmaxAL => loadUMaxAL | SwapAL => swapAL
-                    |   LoadAddAcquire => loadAddA | LoadUMaxAcquire => loadUMaxA | SwapRelease => swapL
+                        LoadAddAL => loadAddAL
+                    |   LoadUmaxAL => loadUMaxAL
+                    |   SwapAL => swapAL
+                    |   LoadAddAcquire => loadAddA
+                    |   LoadUMaxAcquire => loadUMaxA
+                    |   SwapRelease => swapL
             in
                 toAssembler(rest, code <::> instr{regT=regT, regN=regN, regS=regS})
             end
 
-        |   toAssembler(LoadRegPair{ regT1, regT2, regN, unitOffset, loadType, unscaledType} :: rest, code) =
+        |   toAssembler(LoadRegPair{regT1, regT2, regN, unitOffset, loadType,
+                                    unscaledType} :: rest, code) =
             let
-                val _ = regT1 <> regT2 orelse raise InternalError "LoadRegPair: same register"
+                val _ = regT1 <> regT2
+                        orelse raise InternalError "LoadRegPair: same register"
                 val instr =
                     case (loadType, unscaledType) of
                         (Load64, NoUpdate) => loadPairOffset
@@ -508,10 +542,12 @@ struct
                     |   (Load32, PostIndex) => loadPairPostIndexed32
                     |   _ => raise InternalError "LoadRegPair: unimplemented"
             in
-                toAssembler(rest, code <::> instr{regT1=regT1, regT2=regT2, regN=regN, unitOffset=unitOffset})
+                toAssembler(rest, code <::> instr{regT1=regT1, regT2=regT2, regN=regN,
+                                                  unitOffset=unitOffset})
             end
 
-        |   toAssembler(StoreRegPair{ regT1, regT2, regN, unitOffset, loadType, unscaledType} :: rest, code) =
+        |   toAssembler(StoreRegPair{regT1, regT2, regN, unitOffset, loadType,
+                                     unscaledType} :: rest, code) =
             let
                 val instr =
                     case (loadType, unscaledType) of
@@ -691,22 +727,33 @@ struct
                 toAssembler(rest, code <::> instr {regN=regN, regD=regD})
             end
 
-        |   toAssembler(SetLabel(Label lab) :: rest, code) = toAssembler(rest, code <::> setLabel(getLabelTarget lab))
+        |   toAssembler(SetLabel(Label lab) :: rest, code) =
+            toAssembler(rest, code <::> setLabel(getLabelTarget lab))
 
-        |   toAssembler(ConditionalBranch(cond, Label lab) :: rest, code) = toAssembler(rest, code <::> conditionalBranch(cond, getLabelTarget lab))
+        |   toAssembler(ConditionalBranch(cond, Label lab) :: rest, code) =
+            toAssembler(rest, code <::> conditionalBranch(cond, getLabelTarget lab))
 
-        |   toAssembler(UnconditionalBranch(Label lab) :: rest, code) = toAssembler(rest, code <::> unconditionalBranch(getLabelTarget lab))
+        |   toAssembler(UnconditionalBranch(Label lab) :: rest, code) =
+            toAssembler(rest, code <::> unconditionalBranch(getLabelTarget lab))
 
-        |   toAssembler(BranchAndLink(Label lab) :: rest, code) = toAssembler(rest, code <::> branchAndLink(getLabelTarget lab))
+        |   toAssembler(BranchAndLink(Label lab) :: rest, code) =
+            toAssembler(rest, code <::> branchAndLink(getLabelTarget lab))
 
-        |   toAssembler(BranchReg{regD, brRegType=BRRBranch} :: rest, code) = toAssembler(rest, code <::> branchRegister regD)
-        |   toAssembler(BranchReg{regD, brRegType=BRRAndLink} :: rest, code) = toAssembler(rest, code <::> branchAndLinkReg regD)
-        |   toAssembler(BranchReg{regD, brRegType=BRRReturn} :: rest, code) = toAssembler(rest, code <::> returnRegister regD)
+        |   toAssembler(BranchReg{regD, brRegType=BRRBranch} :: rest, code) =
+            toAssembler(rest, code <::> branchRegister regD)
+        |   toAssembler(BranchReg{regD, brRegType=BRRAndLink} :: rest, code) =
+            toAssembler(rest, code <::> branchAndLinkReg regD)
+        |   toAssembler(BranchReg{regD, brRegType=BRRReturn} :: rest, code) =
+            toAssembler(rest, code <::> returnRegister regD)
 
-        |   toAssembler(LoadLabelAddress(reg, Label lab) :: rest, code) = toAssembler(rest, code <::> loadLabelAddress(reg, getLabelTarget lab))
+        |   toAssembler(LoadLabelAddress(reg, Label lab) :: rest, code) =
+            toAssembler(rest, code <::> loadLabelAddress(reg, getLabelTarget lab))
 
         |   toAssembler(TestBitBranch{ test, bit, label=Label lab, onZero } :: rest, code) =
-                toAssembler(rest, code <::> (if onZero then testBitBranchZero else testBitBranchNonZero)(test, bit, getLabelTarget lab))
+            toAssembler(rest, code <::>
+                                   (if onZero then testBitBranchZero else
+                                       testBitBranchNonZero)
+                                   (test, bit, getLabelTarget lab))
 
         |   toAssembler(CompareBranch{ test, label=Label lab, onZero, opSize } :: rest, code) =
             let
