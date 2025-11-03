@@ -99,11 +99,16 @@ struct
     31             20    15       12   7         0
   *)
     fun IType (opcode7, funct3) {rd, rs1, simm12} =
+    let val () = if simm12 >= 0wx1000 then
+                    raise InternalError "I-type instruction: simm12 > 12 bits"
+                 else ()
+    in
         SimpleInstr((simm12                         << 0w20) orb
                     ((word8ToWord32 (xRegOrXZ rs1)) << 0w15) orb
                     ((word8ToWord32 funct3)         << 0w12) orb
                     ((word8ToWord32 (xRegOrXZ rd))  << 0w7) orb
                     (word8ToWord32 opcode7))
+    end
 
  (* S-type: .insn s opcode7, funct3, rs1, rs2, simm12
     +--------------+-----+-----+--------+-------------+---------+
@@ -112,12 +117,17 @@ struct
     31             25    20    15       12            7         0
   *)
     fun SType (opcode7, funct3) {rs1, rs2, simm12} =
+    let val () = if simm12 >= 0wx1000 then
+                    raise InternalError "S-type instruction: simm12 > 12 bits"
+                 else ()
+    in
         SimpleInstr(((simm12 >> 0w5)                << 0w25) orb
                     ((word8ToWord32 (xRegOrXZ rs2)) << 0w20) orb
                     ((word8ToWord32 (xRegOrXZ rs1)) << 0w15) orb
                     ((word8ToWord32 funct3)         << 0w12) orb
                     ((simm12 andb 0wx1f (*=11111*)) << 0w7) orb
                     (word8ToWord32 opcode7))
+    end
 
  (* U-type: .insn u opcode7, rd, simm20
     +--------------+----+---------+
@@ -126,13 +136,18 @@ struct
     31             12   7         0
   *)
     fun UType opcode7 {rd, simm20} =
+    let val () = if simm20 >= 0wx100000 then
+                    raise InternalError "S-type instruction: simm20 > 20 bits"
+                 else ()
+    in
         SimpleInstr((simm20                         << 0w12) orb
                     ((word8ToWord32 (xRegOrXZ rd))  << 0w7) orb
                     (word8ToWord32 opcode7))
+    end
 
     local
-        val op_imm   :Word8.word = 0w19 (* 0010011 *)
-        and op_imm32 :Word8.word = 0w27 (* 0011011 *)
+        val op_imm   = 0w19 (* 0010011 *)
+        and op_imm32 = 0w27 (* 0011011 *)
     in
         val addImmediate          = IType (op_imm,   0w0)
         and addImmediateW         = IType (op_imm32, 0w0)
