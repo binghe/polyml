@@ -1,5 +1,5 @@
 (*
-    Copyright David C. J. Matthews 2016-21, 23
+    Copyright David C. J. Matthews 2016-23
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -713,7 +713,7 @@ struct
                             pushCode @ BeginFunction {regArgs=newRegArgs, stackArgs=newStackArgs} :: code
                         end
 
-                    |   pushRegisters({instr=FunctionCall{callKind, regArgs, stackArgs, dest, realDest, ...}, ...}, code) =
+                    |   pushRegisters({instr=FunctionCall{callKind, regArgs, stackArgs, results, ...}, ...}, code) =
                         let
                             (* It's possible that this could lead to having to spill registers in order
                                to load others.  Leave that problem for the moment. *)
@@ -732,7 +732,13 @@ struct
                                 (loadCode @ otherLoads, (argVal, reg) :: otherArgs)
                             end
                             val (regArgLoads, newRegArgs) = List.foldr loadRegArg ([], []) regArgs
-                            val (destVal, destCode) = mapDestReg dest
+                            fun pushResults((preg, rreg), (others, code)) =
+                            let
+                                val (newReg, newCode) = mapDestReg preg
+                            in
+                                ((newReg, rreg) :: others, newCode @ code)
+                            end
+                            val (destVals, destCode) = List.foldr pushResults ([], []) results
                             (* Now clear the cache table. *)
                             val () = clearCache()
                             (* Stack arguments are pushed in addition to anything on the stack. *)
@@ -740,7 +746,7 @@ struct
                         in
                             destCode @
                                     FunctionCall{ callKind=callKind, regArgs=newRegArgs, stackArgs=newStackArgs,
-                                                  dest=destVal, realDest=realDest, saveRegs=[]} ::
+                                                  results=destVals, saveRegs=[]} ::
                                         regArgLoads @ stackArgLoads @ code
                         end
 
@@ -977,14 +983,20 @@ struct
                             pktCode @ BeginHandler{packetReg=pktReg, workReg=newWorkReg} :: code
                         end
 
-                    |   pushRegisters({instr=ReturnResultFromFunction{resultReg, realReg, numStackArgs}, ...}, code) =
+                    |   pushRegisters({instr=ReturnResultFromFunction{results, numStackArgs}, ...}, code) =
                         let
-                            val (resultValue, loadResult) = mapSrcReg resultReg
+                            fun getResults((preg, rreg), (others, code)) =
+                            let
+                                val (newReg, newCode) = mapSrcReg preg
+                            in
+                                ((newReg, rreg) :: others, newCode @ code)
+                            end
+                            val (resultValues, loadResults) = List.foldr getResults ([], []) results
                             val resetCode =
                                 if !stackCount = 0 then [] else [ResetStackPtr{numWords= !stackCount, preserveCC=false}]
                         in
-                            ReturnResultFromFunction{resultReg=resultValue, realReg=realReg, numStackArgs=numStackArgs} ::
-                                resetCode @ loadResult @ code
+                            ReturnResultFromFunction{results=resultValues, numStackArgs=numStackArgs} ::
+                                resetCode @ loadResults @ code
                         end
 
                     |   pushRegisters({instr=ArithmeticFunction{oper, resultReg, operand1, operand2, ccRef, opSize}, ...}, code) =

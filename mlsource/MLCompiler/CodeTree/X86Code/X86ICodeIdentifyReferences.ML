@@ -1,5 +1,5 @@
 (*
-    Copyright (c) 2016-21, 23 David C.J. Matthews
+    Copyright (c) David C.J. Matthews 2016-23
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -94,7 +94,7 @@ struct
     |   getInstructionState(BeginFunction {regArgs, stackArgs, ...}) =
             { sources=[], dests=map #1 regArgs, sStacks=[], dStacks=stackArgs, ccIn=CCUnused, ccOut=CCIndeterminate }
 
-    |   getInstructionState(FunctionCall{regArgs, stackArgs, dest, ...}) =
+    |   getInstructionState(FunctionCall{regArgs, stackArgs, results, ...}) =
         let
             (* Non-tail-recursive.  Behaves as a normal reference to sources. *)
             fun getSources argSource =
@@ -105,7 +105,7 @@ struct
                 List.foldl regSource stackSources regArgs
             end
         in
-            { sources=getSources argRegs, dests=[dest], sStacks=getSources argStacks, dStacks=[], ccIn=CCUnused, ccOut=CCIndeterminate }
+            { sources=getSources argRegs, dests=List.map #1 results, sStacks=getSources argStacks, dStacks=[], ccIn=CCUnused, ccOut=CCIndeterminate }
         end
 
     |   getInstructionState(TailRecursiveCall{regArgs, stackArgs, workReg, ...}) =
@@ -183,8 +183,8 @@ struct
     |   getInstructionState(BeginHandler{ workReg, packetReg, ...}) =
             { sources=[], dests=[packetReg, workReg], sStacks=[], dStacks=[], ccIn=CCUnused, ccOut=CCIndeterminate }
 
-    |   getInstructionState(ReturnResultFromFunction{resultReg, ...}) =
-            { sources=[resultReg], dests=[], sStacks=[], dStacks=[], ccIn=CCUnused, ccOut=CCIndeterminate }
+    |   getInstructionState(ReturnResultFromFunction{results, ...}) =
+            { sources=List.map #1 results, dests=[], sStacks=[], dStacks=[], ccIn=CCUnused, ccOut=CCIndeterminate }
 
     |   getInstructionState(ArithmeticFunction{resultReg, operand1, operand2, ccRef, ...}) =
             { sources=operand1 :: argRegs operand2, dests=[resultReg],
@@ -725,12 +725,12 @@ struct
                                     JumpLoop{regArgs=regArgs, stackArgs=stackArgs, checkInterrupt=SOME check, workReg=workReg}
                                 end
                         
-                            |   FunctionCall{regArgs, stackArgs=[], dest, realDest, callKind as ConstantCode m, saveRegs=_} =>
+                            |   FunctionCall{regArgs, stackArgs=[], results as [(dest, _)], callKind as ConstantCode m, saveRegs=_} =>
                                 (* If this is arbitrary precision push the registers rather than marking them as "save".
                                    stringOfWord returns 'CODE "PolyAddArbitrary"' etc. *)
                                 if (String.isSubstring "Arbitrary\"" (Address.stringOfWord m))
-                                then FunctionCall{regArgs=regArgs, stackArgs=[], callKind=callKind, dest=dest,
-                                        realDest=realDest, saveRegs=getSaveSet(regNo dest) }
+                                then FunctionCall{regArgs=regArgs, stackArgs=[], callKind=callKind,
+                                        results=results, saveRegs=getSaveSet(regNo dest) }
                                 else instr
 
                             |   _ => instr
@@ -747,6 +747,7 @@ struct
                                 else case Vector.sub(pregProps, i) of
                                     RegPropCacheTagged => raise InternalError "pushRegisters: cache reg"
                                 |   RegPropCacheUntagged => raise InternalError "pushRegisters: cache reg"
+                                |   RegPropMultiple => raise InternalError "pushRegisters: merge reg"
                                 |  _ => Array.update(requirePushOrDiscard, i, true)
                         in
                             (* We need to push everything active after this

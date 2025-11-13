@@ -265,6 +265,8 @@ struct
                                                 RegPropStack _ => chooseReg(regs, bestReg, bestCost)
                                             |   RegPropCacheUntagged => reg (* Pick the first cache reg. *)
                                             |   RegPropCacheTagged => reg (* Pick the first cache reg. *)
+                                            |   RegPropMultiple => (* Must not pick a merge reg *)
+                                                    chooseReg(regs, bestReg, bestCost)
                                             |   _ =>
                                                 if cost >= bestCost
                                                 then chooseReg(regs, reg, active)

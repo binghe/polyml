@@ -1,5 +1,5 @@
 (*
-    Copyright David C. J. Matthews 2016-21, 23
+    Copyright David C. J. Matthews 2016-23
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -136,9 +136,9 @@ struct
             |   addHints{instr=TailRecursiveCall{regArgs, ...}, ...} =
                     List.app (fn (arg, reg) => case decache arg of RegisterArgument(PReg pr) => addRealHint(pr, reg) | _ => ()) regArgs
         
-            |   addHints{instr=FunctionCall{regArgs, dest=PReg dreg, realDest, ...}, ...} =
+            |   addHints{instr=FunctionCall{regArgs, results, ...}, ...} =
                 (
-                    addRealHint(dreg, realDest);
+                    List.app (fn (PReg pr, reg) => addRealHint(pr, reg)) results;
                     List.app (fn (arg, reg) => case decache arg of RegisterArgument(PReg pr) => addRealHint(pr, reg) | _ => ()) regArgs
                 )
         
@@ -160,7 +160,8 @@ struct
             |   addHints{instr=BeginHandler{packetReg=PReg pReg, workReg=_}, ...} =
                     (* The exception packet is in rax. *) addRealHint(pReg, GenReg eax)
         
-            |   addHints{instr=ReturnResultFromFunction { resultReg=PReg resReg, realReg, ... }, ...} = addRealHint(resReg, realReg)
+            |   addHints{instr=ReturnResultFromFunction { results, ... }, ...} =
+                    List.app(fn(PReg resReg, realReg) => addRealHint(resReg, realReg)) results
         
             |   addHints{instr=ArithmeticFunction{oper=SUB, resultReg=PReg resReg, operand1=PReg op1Reg, ...}, ...} =
                     (* Can only be one way round. *)
@@ -471,7 +472,7 @@ struct
                 List.app allocateRegArg regArgs
             end
 
-        |   registerAllocate({instr=FunctionCall{regArgs=oRegArgs, stackArgs=oStackArgs, dest=PReg dReg, realDest, saveRegs, ...}, ...}) =
+        |   registerAllocate({instr=FunctionCall{regArgs=oRegArgs, stackArgs=oStackArgs, results, saveRegs, ...}, ...}) =
             let
                 val regArgs = List.map (fn (arg, reg) => (decache arg, reg)) oRegArgs
                 and stackArgs = List.map decache oStackArgs
@@ -480,8 +481,11 @@ struct
                 |   allocateRegArg(_, FPReg _) = raise InternalError "allocateRegArg" (* Never used. *)
             in
                 List.app(fn (PReg r) => allocateGeneralReg r) saveRegs;
-                (* Result will be in rax/fp0/xmm0. *)
-                allocateRegister(dReg, SOME realDest, [realDest]);
+                (* Try to use the destination register but don't force it.  We may have already
+                   allocated a different register in which case we'll have to move the result there. *)
+                List.app(fn (PReg dReg, realDest) =>
+                    allocateRegister(dReg, SOME realDest,
+                            case realDest of GenReg _ => generalRegisters | _ => floatingPtRegisters)) results;
                 List.app allocateArgGeneral stackArgs;
                 (* We've already hinted the arguments. *)
                 List.app allocateRegArg regArgs
@@ -563,8 +567,9 @@ struct
                 allocateGeneralReg wReg
             )
 
-        |   registerAllocate({instr=ReturnResultFromFunction { resultReg=PReg resReg, realReg, ... }, ...}) =
-                allocateRegister(resReg, SOME realReg, [realReg] (* It MUST be in this register *))
+        |   registerAllocate({instr=ReturnResultFromFunction { results, ... }, ...}) =
+                List.app(fn (PReg resReg, realReg) => 
+                    allocateRegister(resReg, SOME realReg, [realReg] (* It MUST be in this register *))) results
 
         |   registerAllocate{instr=ArithmeticFunction{oper=SUB, resultReg=PReg resReg, operand1=PReg op1Reg,
                                             operand2, ...}, ...} =

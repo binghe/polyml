@@ -1,5 +1,5 @@
 (*
-    Copyright David C. J. Matthews 2016-21, 23
+    Copyright David C. J. Matthews 2016-23
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -587,7 +587,7 @@ struct
             |   instructionUses(PushExceptionHandler _) = ()
             |   instructionUses(PopExceptionHandler _) = ()
             |   instructionUses(BeginHandler _) = ()
-            |   instructionUses(ReturnResultFromFunction{resultReg, ...}) = used resultReg
+            |   instructionUses(ReturnResultFromFunction{results, ...}) = List.app(used o #1) results
             |   instructionUses(ArithmeticFunction{operand1, operand2, ...}) = (used operand1; argUses operand2)
             |   instructionUses(TestTagBit{arg, ...}) = argUses arg
             |   instructionUses(PushValue {arg, ...}) = argUses arg
@@ -835,13 +835,10 @@ struct
                     codeTailCall(extStackArgs @ extRegArgs, stackAdjust+currStackSize, code)
             end
 
-        |   codeExtended _ ({instr=FunctionCall{callKind, regArgs=oRegArgs, stackArgs=oStackArgs, dest=PReg dReg, realDest, saveRegs}, ...}, code) =
+        |   codeExtended _ ({instr=FunctionCall{callKind, regArgs=oRegArgs, stackArgs=oStackArgs, results, saveRegs}, ...}, code) =
             let
                 val regArgs = List.map (fn (arg, reg) => (decache arg, reg)) oRegArgs
                 and stackArgs = List.map decache oStackArgs
-                
-                val destReg = getAllocatedReg dReg
-                
                 
                 fun pushStackArgs ([], _, code) = code
                 
@@ -918,9 +915,10 @@ struct
                         PopR areg :: makeSaves(regs, PushToStack(RegisterArg areg) :: code)
                     end
 
+                (* Move the results from the real registers into the allocated registers. *)
+                val resultRegs = map(fn (PReg reg, realReg) => {src=realReg, dst=getAllocatedReg reg}) results
             in
-                moveIfNecessary({dst=destReg, src=realDest, kind=case realDest of GenReg _ => moveNativeWord | _ => MoveDouble},
-                    makeSaves(saveRegs, loadConstArgs)) 
+                moveMultipleRegisters(resultRegs, makeSaves(saveRegs, loadConstArgs)) 
             end
 
         |   codeExtended _ ({instr=AllocateMemoryOperation{ size, flags, dest=PReg dReg, saveRegs}, ...}, code) =
@@ -1121,12 +1119,11 @@ struct
                 moveIfNecessary({src=GenReg eax, dst=realPktReg, kind=moveNativeWord }, beginHandleCode)
             end
 
-        |   codeExtended _ ({instr=ReturnResultFromFunction { resultReg=PReg resReg, realReg, numStackArgs }, ...}, code) =
+        |   codeExtended _ ({instr=ReturnResultFromFunction { results, numStackArgs }, ...}, code) =
             let
-                val resultReg = getAllocatedReg resReg
-                (* If for some reason it's not in the right register we have to move it there. *)
+                val resultRegs = List.map(fn (PReg resReg, realReg) => {src=getAllocatedReg resReg, dst=realReg}) results
             in
-                ReturnFromFunction numStackArgs :: moveIfNecessary({src=resultReg, dst=realReg, kind=moveNativeWord}, code)
+                ReturnFromFunction numStackArgs :: moveMultipleRegisters(resultRegs, code)
             end
 
         |   codeExtended _ ({instr=ArithmeticFunction{oper=SUB, resultReg=PReg resReg, operand1=PReg op1Reg,
@@ -1926,7 +1923,7 @@ struct
                                             (ExitCode,
                                              ExitCode,
                                              [{instr=LoadArgument{dest=PReg tReg, source=tSource, kind=kindT}, ...},
-                                                {instr=ReturnResultFromFunction{resultReg=PReg resReg, realReg, numStackArgs, ...}, ...}],
+                                                {instr=ReturnResultFromFunction{results=[(PReg resReg, realReg)], numStackArgs, ...}, ...}],
                                              [{instr=LoadArgument{dest=PReg fReg, source=fSource, kind=kindF}, ...},
                                                 {instr=ReturnResultFromFunction _, ...}]) =>
                                              (* The real register for the two sides should both be rax. *)
