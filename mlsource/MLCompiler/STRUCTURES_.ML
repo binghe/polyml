@@ -2,7 +2,7 @@
     Copyright (c) 2000
         Cambridge University Technical Services Limited
         
-    Modified D.C.J. Matthews 2001-2016, 2020
+    Modified D.C.J. Matthews 2001-2016, 2020, 2025
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -853,6 +853,22 @@ struct
         }
     end;
 
+    fun idAccess (TypeId { access, ...}) = access 
+    fun tcName       (TypeConstrs {name,...})       = name
+    fun tcTypeVars   (TypeConstrs {typeVars,...})   = typeVars
+    fun tcIdentifier (TypeConstrs {identifier,...}) = identifier
+    fun tcLocations  (TypeConstrs {locations, ...}) = locations
+    fun tcIsAbbreviation (TypeConstrs {identifier = TypeId{idKind = TypeFn _, ...},...}) = true
+    |   tcIsAbbreviation _ = false
+
+    val tcEquality = isEquality o tcIdentifier;
+
+    fun tcArity(TypeConstrs {identifier=TypeId{idKind=TypeFn{tyVars, ...},...}, ...}) = length tyVars
+    |   tcArity(TypeConstrs {identifier=TypeId{idKind=Bound{arity, ...},...}, ...}) = arity
+    |   tcArity(TypeConstrs {identifier=TypeId{idKind=Free{arity, ...},...}, ...}) = arity
+
+    fun tsConstructors(TypeConstrSet(_, tvs)) = tvs
+
     (* TODO: If the item being errored is in a substructure it currently doesn't report
        the name of the substructure. *)
     (* Report an error about signature-structure matching. *)
@@ -1086,6 +1102,10 @@ struct
                 val printTypeEnv = { lookupType = fn _ => NONE, lookupStruct = fn _ => NONE }
                 fun displayType t = displayTypeConstrs(t, errorDepth lex, printTypeEnv)
                 val typeError = sigStructMatchMsg(lex, near, lno, structPath) displayType
+                (* Condition for a candidate type to match an eqtype. *)
+                fun permitsEquality(TypeConstrs {identifier=TypeId{idKind = TypeFn{equality=ref(TypeFnEq _), ...}, ...}, ...}) = true
+                |   permitsEquality(TypeConstrs {identifier=TypeId{idKind = TypeFn{equality=ref TypeFnEqNever, ...}, ...}, ...}) = false
+                |   permitsEquality(TypeConstrs{identifier, ...}) = isEquality identifier
             in (* Match up the types. This does certain checks but
                   does not check sharing. Equality is checked for. *)
                 case univLookup (sigTab candidate, typeConstrVar, dName) of
@@ -1629,6 +1649,14 @@ struct
                                         ValueMatch { sourceValue = valVal, coercion = NoCoercion, targetType=typeOf}) :: matches))
                         end
                         val (newConstrs, newAddrMatch) = List.foldl convertConstructor ([], (addrs, matches)) valConstrs
+                        fun makeTypeConstructor (name, typeVars, uid, locations) =
+                            TypeConstrs
+                            {
+                                name       = name,
+                                typeVars   = typeVars,
+                                identifier = uid,
+                                locations = locations
+                            }
                         val newConstructor =
                             makeTypeConstructor(
                                 tcName typConstr, tcTypeVars typConstr, tcIdentifier typConstr, tcLocations typConstr)
@@ -1987,9 +2015,8 @@ struct
                     makeLocalTypeId(List.length args, true, eq, isdt,
                         { location = location, name = structPath ^ name, description = description })
             |   makeId (_, _, (typeVars, decType), { location, name, description }) =
-                    makeTypeFunction(
-                        { location = location, name = structPath ^ name, description = description },
-                        (typeVars, decType))
+                    makeTypeFunction(typeVars, decType,
+                        { location = location, name = structPath ^ name, description = description })
 
             (* Process the body and discard the type. *)
             val _ : types = pass2 (dec, makeId, Env newEnv, lex, fn _ => false);
@@ -2101,8 +2128,8 @@ struct
            structure declarations to freeze the types (there's an example on p90 of the
            Definition) but we can't functors to get access to unfrozen free variables because
            that can break the type system.  *)
-        fun checkValueForFreeTypeVariables(name: string, v: values) =
-            checkForFreeTypeVariables(name, valTypeOf v, lex, codeForUniqueId)
+        fun checkValueForFreeTypeVariables(name: string, Value{typeOf, ...}) =
+            checkForFreeTypeVariables(name, typeOf, lex, codeForUniqueId)
 
         (* Find all the values in the structure. *)
         fun checkStructSigForFreeTypeVariables(name: string, s: signatures) =
@@ -2688,6 +2715,8 @@ struct
         #1 (matchSubStructure (code, actions))
     end (* applyMatchActions *)
 
+    fun vaLocal (Local x) = x | vaLocal _ = raise InternalError "not local"
+
     (* If we are declaring a structure with an opaque signature we need to create
        the run-time IDs for newly generated IDs. *)
     fun loadOpaqueIds (opaqueIds, mkAddr, level) =
@@ -3245,7 +3274,7 @@ struct
                         makeSignature(name, tab, firstBoundIndex, locations, composeMaps(typeIdMap, newMap), boundIds)
                 end
                 val funcTree = 
-                    makeFunctor(functorName, copiedArg, functorSigResult, makeGlobal code, functorLocations)
+                    makeFunctor(functorName, copiedArg, functorSigResult, Global code, functorLocations)
             in
                 (addr + 1, (name, funcTree) :: funcs)
             end
